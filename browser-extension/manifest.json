@@ -1,0 +1,14 @@
+{
+    "manifest_version": 3,
+    "name": "Instant-AI-News-Digest",
+    "version": "1.0",
+    "permissions": ["activeTab", "scripting"],
+    "action": {
+      "default_popup": "popup.html",
+      "default_title": "Instant-AI-News-Digest"
+    },
+    "background": {
+      "service_worker": "background.js"
+    }
+  }
+  
