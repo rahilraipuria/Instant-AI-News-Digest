@@ -5,6 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Panel() {
+  
+  const [mainContent, setMainContent] = useState("");
+
+  useEffect(() => {
+    fetch('http://localhost:5000/getContent')
+    .then((response) => response.json())
+    .then((data) => {
+      setMainContent(data);
+      console.log(data);
+    });
+  },[]);
+
   const [summary, setSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);

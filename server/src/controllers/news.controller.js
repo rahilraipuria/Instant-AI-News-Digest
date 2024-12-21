@@ -78,7 +78,7 @@ const summarize = async (req, res) => {
 
     const result = await model.generateContent(prompt);
     console.log(result.response.text());
-
+    
     return res
     .status(201)
     .json(
