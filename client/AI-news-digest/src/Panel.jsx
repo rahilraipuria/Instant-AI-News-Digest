@@ -1,141 +1,96 @@
-'use client';
-import React, { useState, useEffect } from 'react';
-import { FileText, Mic, Languages, Book, BrainCircuit, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import {
+  FileText,
+  Mic,
+  Languages,
+  Book,
+  BrainCircuit,
+  ChevronRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import Quiz from "./components/Quiz.jsx";
 
 export default function Panel() {
-  
   const [mainContent, setMainContent] = useState("");
 
   useEffect(() => {
-    fetch('http://localhost:5000/getContent')
-    .then((response) => response.json())
-    .then((data) => {
-      setMainContent(data);
-      console.log(data);
-    });
-  },[]);
+    fetch("http://localhost:5000/getContent")
+      .then((response) => response.json())
+      .then((data) => {
+        setMainContent(data);
+        console.log(data);
+      });
+  }, []);
 
   const [summary, setSummary] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  useEffect(() => {
-    // Listen for messages from the content script
-    window.addEventListener('message', async (event) => {
-      if (event.data.type === 'CONTENT_RESPONSE') {
-        try {
-          console.log('Content received:', event.data.content); // Log the content received
-
-          // Ensure the content is not empty
-          if (!event.data.content) {
-            console.error('No content received');
-            setError('No content received');
-            return;
-          }
-
-          console.log("Sending content to API:", event.data.content); // Log the content before sending
-
-          // Sending content to the API
-          const response = await fetch('http://localhost:8000/api/v1/news/summarize', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ text: mainContent.contentData }),  // Send the content in the request body
-          });
-
-          // Handling the API response
-          const data = await response.json();
-          if (data.summary) {
-            setSummary(data.summary);  // Set the summary if available
-          } else {
-            setError('Failed to generate summary');
-          }
-
-          setIsLoading(false);  // Stop loading after receiving the response
-        } catch (err) {
-          console.error('Error while fetching summary:', err);
-          setError('Failed to generate summary');
-          setIsLoading(false);
-        }
-      }
-    });
-
-    // Clean up the event listener on component unmount
-    return () => {
-      window.removeEventListener('message', () => {});
-    };
-  }, []);
-
-  // Handle button click to start summarization
-  const handleSummaryClick = async () => {
+  const [showQuiz, setShowQuiz] = useState(false);
+  const [questions,setQuestions] = useState([])
+  let questionsArray = [];
+  const handleSummary = async () => {
     setIsLoading(true);
+    const response = await fetch(
+      "http://localhost:8000/api/v1/news/summarize",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: mainContent.contentData }),
+      }
+    );
+
     setError(null);
-    
     setSummary(null);
 
-    // Send message to parent window (content script) to get page content
-    window.parent.postMessage({ type: 'GET_PAGE_CONTENT' }, '*');
+    const data = await response.json();
+    console.log(data.data);
+    setIsLoading(false);
+    setSummary(data.data);
   };
 
-  const handleSummary = async () => {
-    // console.log(mainContent.contentData);
-    setIsLoading(true);
-    const response = await fetch('http://localhost:8000/api/v1/news/summarize', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ text: mainContent.contentData }),  // Send the content in the request body
-    });
-    
-    setError(null);
-    
-    setSummary(null);
-
-    const data = await response.json();
-    console.log(data.data);  // Log the response text
-    //const text = data.data.candidates[0].content.parts[0].text;   // Resolve the promise
-    setIsLoading(false);
-    setSummary(data.data)
-  }
-  
   const handleQuestions = async () => {
-    // console.log(mainContent.contentData);
     setIsLoading(true);
-    const response = await fetch('http://localhost:8000/api/v1/news/generateQuiz', {
-      method: 'POST',
+    setShowQuiz(true);
+  
+    const response = await fetch("http://localhost:8000/api/v1/news/generateQuiz", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ text: mainContent.contentData }),  // Send the content in the request body
+      body: JSON.stringify({ text: mainContent.contentData }),
     });
     
-    // setError(null);
+    const result = await response.json();
+    let questionsArray = [];
+    questionsArray = JSON.parse(result.data);
+    setQuestions(questionsArray);
     
-    // setSummary(null);
+    console.log(questions);
+    setIsLoading(false);
+  };
 
-    const data = await response.json();
-    console.log(data);  // Log the response text
-    //const text = data.data.candidates[0].content.parts[0].text;   // Resolve the promise
-    
-  }
-  
 
   return (
     <div className="flex h-screen bg-background">
       <div className="flex-1 overflow-auto">
         <div className="p-6 pb-24">
           <h1 className="mb-5 text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-500 bg-clip-text text-transparent">
-            Welcome <span role="img" aria-label="waving hand">👋</span>
+            Welcome{" "}
+            <span role="img" aria-label="waving hand">
+              👋
+            </span>
           </h1>
 
           <div className="mb-8">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">Tools</h2>
-              <Button variant="ghost" className="text-blue-500 hover:text-blue-600 font-medium">
+              <Button
+                variant="ghost"
+                className="text-blue-500 hover:text-blue-600 font-medium"
+              >
                 More <ChevronRight className="ml-1 h-4 w-4" />
               </Button>
             </div>
@@ -150,12 +105,15 @@ export default function Panel() {
               <ToolButton icon={<Mic />} label="Audio Summary" />
               <ToolButton icon={<Languages />} label="Language" />
               <ToolButton icon={<BrainCircuit />} label="Content Analysis" />
-              <ToolButton icon={<Book />} onclick={handleQuestions} label="Quiz Generation" />
+              <ToolButton
+                icon={<Book />}
+                onClick={handleQuestions}
+                label="Quiz Generation"
+              />
             </div>
           </div>
 
-          {/* Summary Results Section */}
-          {(isLoading || summary || error) && (
+          {(isLoading || summary || error || showQuiz) && (
             <div className="mt-8">
               <h2 className="text-xl font-semibold mb-4">Summary</h2>
 
@@ -173,11 +131,13 @@ export default function Panel() {
                 </div>
               )}
 
-              {summary  && !isLoading && (
+              {summary && !isLoading && (
                 <div className="p-4 bg-accent/50 rounded-lg">
                   <p className="whitespace-pre-wrap">{summary}</p>
                 </div>
               )}
+
+              {showQuiz && !isLoading && <Quiz quizData={questions} />}
             </div>
           )}
         </div>
@@ -194,9 +154,7 @@ function ToolButton({ icon, label, onClick, disabled }) {
       onClick={onClick}
       disabled={disabled}
     >
-      <div className="group-hover:text-blue-500 transition-colors">
-        {icon}
-      </div>
+      <div className="group-hover:text-blue-500 transition-colors">{icon}</div>
       <span className="text-sm truncate">{label}</span>
     </Button>
   );
