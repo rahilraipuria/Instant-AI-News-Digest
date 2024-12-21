@@ -38,12 +38,12 @@ export default function Panel() {
           console.log("Sending content to API:", event.data.content); // Log the content before sending
 
           // Sending content to the API
-          const response = await fetch('http://localhost:8000/api/summarize', {
+          const response = await fetch('http://localhost:8000/api/v1/news/summarize', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ content: event.data.content }),  // Send the content in the request body
+            body: JSON.stringify({ text: mainContent.contentData }),  // Send the content in the request body
           });
 
           // Handling the API response
@@ -73,11 +73,56 @@ export default function Panel() {
   const handleSummaryClick = async () => {
     setIsLoading(true);
     setError(null);
+    
     setSummary(null);
 
     // Send message to parent window (content script) to get page content
     window.parent.postMessage({ type: 'GET_PAGE_CONTENT' }, '*');
   };
+
+  const handleSummary = async () => {
+    // console.log(mainContent.contentData);
+    setIsLoading(true);
+    const response = await fetch('http://localhost:8000/api/v1/news/summarize', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text: mainContent.contentData }),  // Send the content in the request body
+    });
+    
+    setError(null);
+    
+    setSummary(null);
+
+    const data = await response.json();
+    console.log(data.data);  // Log the response text
+    //const text = data.data.candidates[0].content.parts[0].text;   // Resolve the promise
+    setIsLoading(false);
+    setSummary(data.data)
+  }
+  
+  const handleQuestions = async () => {
+    // console.log(mainContent.contentData);
+    setIsLoading(true);
+    const response = await fetch('http://localhost:8000/api/v1/news/generateQuiz', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text: mainContent.contentData }),  // Send the content in the request body
+    });
+    
+    // setError(null);
+    
+    // setSummary(null);
+
+    const data = await response.json();
+    console.log(data);  // Log the response text
+    //const text = data.data.candidates[0].content.parts[0].text;   // Resolve the promise
+    
+  }
+  
 
   return (
     <div className="flex h-screen bg-background">
@@ -99,13 +144,13 @@ export default function Panel() {
               <ToolButton
                 icon={<FileText />}
                 label="Summary"
-                onClick={handleSummaryClick}
+                onClick={handleSummary}
                 disabled={isLoading}
               />
               <ToolButton icon={<Mic />} label="Audio Summary" />
               <ToolButton icon={<Languages />} label="Language" />
               <ToolButton icon={<BrainCircuit />} label="Content Analysis" />
-              <ToolButton icon={<Book />} label="Quiz Generation" />
+              <ToolButton icon={<Book />} onclick={handleQuestions} label="Quiz Generation" />
             </div>
           </div>
 
@@ -128,7 +173,7 @@ export default function Panel() {
                 </div>
               )}
 
-              {summary && !isLoading && (
+              {summary  && !isLoading && (
                 <div className="p-4 bg-accent/50 rounded-lg">
                   <p className="whitespace-pre-wrap">{summary}</p>
                 </div>
