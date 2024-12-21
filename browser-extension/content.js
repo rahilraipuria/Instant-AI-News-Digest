@@ -21,3 +21,20 @@ if (!document.getElementById("react-sidebar-root")) {
 } else {
   document.getElementById("react-sidebar-root").remove(); 
 }
+
+(() => {
+  const htmlContent = document.documentElement.outerHTML;
+
+  
+  fetch("http://localhost:5000/scrape", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ html: htmlContent }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Processed Data:", data);
+    })
+    .catch((err) => console.error("Error:", err));
+})();
+
