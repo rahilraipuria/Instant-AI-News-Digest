@@ -65,7 +65,7 @@ const generateQuestions = async (req, res) => {
   return res
     .status(201)
     .json(
-      new ApiResponse(200, result.response, "Questions generated successfully")
+      new ApiResponse(200, result.response.text(), "Questions generated successfully")
     );
 };
 
