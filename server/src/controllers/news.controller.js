@@ -74,7 +74,7 @@ const summarize = async (req, res) => {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const prompt = `Summarize the following news article in 100 words: ${text}`;
+    const prompt = `Summarize the following news article in bullet points: ${text}`;
 
     const result = await model.generateContent(prompt);
     console.log(result.response.text());

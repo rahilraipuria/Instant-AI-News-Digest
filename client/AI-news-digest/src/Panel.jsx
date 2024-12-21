@@ -123,6 +123,16 @@ export default function Panel() {
     
   }
   
+  const playAudioSummary = () => {
+    
+            
+    let encodedText = encodeURIComponent(summary);
+    let url = `https://api.voicerss.org/?key=e1922b5566c04f5f92c204fab34f4bba&hl=en-us&src=${encodedText}&c=MP3`;
+
+    let audio = new Audio(url);
+    
+    audio.play();
+    }
 
   return (
     <div className="flex h-screen bg-background">
@@ -147,10 +157,10 @@ export default function Panel() {
                 onClick={handleSummary}
                 disabled={isLoading}
               />
-              <ToolButton icon={<Mic />} label="Audio Summary" />
+              <ToolButton icon={<Mic />} label="Audio Summary" onClick={playAudioSummary}/>
               <ToolButton icon={<Languages />} label="Language" />
               <ToolButton icon={<BrainCircuit />} label="Content Analysis" />
-              <ToolButton icon={<Book />} onclick={handleQuestions} label="Quiz Generation" />
+              <ToolButton icon={<Book />} onClick={handleQuestions} label="Quiz Generation" />
             </div>
           </div>
 
