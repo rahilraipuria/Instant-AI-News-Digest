@@ -10,7 +10,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Quiz from "./components/Quiz.jsx";
-
 export default function Panel() {
   const [mainContent, setMainContent] = useState("");
 
@@ -27,7 +26,7 @@ export default function Panel() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showQuiz, setShowQuiz] = useState(false);
-  const [questions,setQuestions] = useState([])
+  const [questions, setQuestions] = useState([]);
   let questionsArray = [];
   const handleSummary = async () => {
     setIsLoading(true);
@@ -54,35 +53,66 @@ export default function Panel() {
   const handleQuestions = async () => {
     setIsLoading(true);
     setShowQuiz(true);
-  
-    const response = await fetch("http://localhost:8000/api/v1/news/generateQuiz", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: mainContent.contentData }),
-    });
-    
+
+    const response = await fetch(
+      "http://localhost:8000/api/v1/news/generateQuiz",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: mainContent.contentData }),
+      }
+    );
+
     const result = await response.json();
     let questionsArray = [];
     questionsArray = JSON.parse(result.data);
     setQuestions(questionsArray);
-    
+
     console.log(questions);
     setIsLoading(false);
   };
 
-  
   const playAudioSummary = () => {
     let encodedText = encodeURIComponent(summary);
     let url = `https://api.voicerss.org/?key=e1922b5566c04f5f92c204fab34f4bba&hl=en-us&src=${encodedText}&c=MP3`;
 
-  console.log(url);  // Check if the URL is correct
+    console.log(url); // Check if the URL is correct
 
-let audio = new Audio(url);
-audio.play();
+    let audio = new Audio(url);
+    audio.play();
   };
-  
+
+  const handleTranslateText = async () => {
+    let text = summary;
+    const target = "kn";
+    const source = "en";
+
+    const response = await fetch("http://localhost:8000/translate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text, target, source }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("Translated text:", response.json());
+    } else {
+      console.error("Translation failed", response.statusText);
+    }
+  };
+
+  const downloadJson = () => {
+    const textContent = summary;
+    const blob = new Blob([textContent], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "content.txt";
+    link.click();
+  };
   return (
     <div className="flex h-screen bg-background">
       <div className="flex-1 overflow-auto">
@@ -112,14 +142,22 @@ audio.play();
                 onClick={handleSummary}
                 disabled={isLoading}
               />
-              <ToolButton icon={<Mic />} label="Audio Summary" onClick={playAudioSummary}/>
-              <ToolButton icon={<Languages />} label="Language" />
+              <ToolButton
+                icon={<Mic />}
+                label="Audio Summary"
+                onClick={playAudioSummary}
+              />
+              <ToolButton
+                icon={<Languages />}
+                label="Language"
+              />
               <ToolButton icon={<BrainCircuit />} label="Content Analysis" />
               <ToolButton
                 icon={<Book />}
                 onClick={handleQuestions}
                 label="Quiz Generation"
               />
+              <Button variant="link" onClick={downloadJson}>Download</Button>
             </div>
           </div>
 
