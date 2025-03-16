@@ -15,7 +15,7 @@ if (!document.getElementById("react-sidebar-root")) {
 
   
   const iframe = document.createElement("iframe");
-  iframe.src = "http://localhost:5173/";
+  iframe.src = "https://instant-ai-news-digest-dashboard.onrender.com";
   iframe.style.cssText = "width: 100%; height: 100%; border: none;";
   sidebar.appendChild(iframe);
 } else {
