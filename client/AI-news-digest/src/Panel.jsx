@@ -14,7 +14,7 @@ export default function Panel() {
   const [mainContent, setMainContent] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5000/getContent")
+    fetch("https://instant-ai-news-digest-scrapper.onrender.com/getContent")
       .then((response) => response.json())
       .then((data) => {
         setMainContent(data);

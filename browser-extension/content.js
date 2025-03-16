@@ -26,7 +26,7 @@ if (!document.getElementById("react-sidebar-root")) {
   const htmlContent = document.documentElement.outerHTML;
 
   
-  fetch("http://localhost:5000/scrape", {
+  fetch("https://instant-ai-news-digest-scrapper.onrender.com/scrape", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ html: htmlContent }),
