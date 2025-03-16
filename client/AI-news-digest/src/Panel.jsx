@@ -31,7 +31,7 @@ export default function Panel() {
   const handleSummary = async () => {
     setIsLoading(true);
     const response = await fetch(
-      "http://localhost:8000/api/v1/news/summarize",
+      "https://instant-ai-news-digest-server.onrender.com/api/v1/news/summarize",
       {
         method: "POST",
         headers: {
@@ -55,7 +55,7 @@ export default function Panel() {
     setShowQuiz(true);
 
     const response = await fetch(
-      "http://localhost:8000/api/v1/news/generateQuiz",
+      "https://instant-ai-news-digest-server.onrender.com/api/v1/news/generateQuiz",
       {
         method: "POST",
         headers: {
@@ -89,7 +89,7 @@ export default function Panel() {
     const target = "kn";
     const source = "en";
 
-    const response = await fetch("http://localhost:8000/translate", {
+    const response = await fetch("https://instant-ai-news-digest-server.onrender.com/translate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
